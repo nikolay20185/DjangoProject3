@@ -1,3 +1,11 @@
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="YOUR-DARKMODE-IMAGE">
+ <source media="(prefers-color-scheme: light)" srcset="YOUR-LIGHTMODE-IMAGE">
+ <img alt="YOUR-ALT-TEXT" src="https://i.postimg.cc/43Px0fPz/2025-04-18-21-36-34.png">
+</picture>
+
+
+
 # CodeSwap - платформа обмена кодом для Cursor IDE
 
 CodeSwap - это веб-приложение на Django, предназначенное для обмена кодом и его фрагментами между разработчиками, использующими Cursor IDE. Платформа позволяет пользователям находить готовые решения, делиться своим кодом и общаться с другими разработчиками.
