@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}О проекте | CodeSwap{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+            <h1 class="text-3xl font-bold mb-6 text-center">О проекте CodeSwap</h1>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-4">Что такое CodeSwap?</h2>
+                <p class="text-gray-300 mb-4">
+                    CodeSwap — это платформа для обмена кодом и готовыми решениями между разработчиками. 
+                    Наша цель — создать удобную библиотеку сниппетов кода, которые можно быстро интегрировать в ваши проекты.
+                </p>
+                <p class="text-gray-300">
+                    Проект был создан для помощи пользователям Cursor IDE — современного редактора кода с интегрированным ИИ. 
+                    Мы верим, что совместное использование проверенных решений экономит время и позволяет сосредоточиться на решении более сложных задач.
+                </p>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-4">Интеграция с Cursor IDE</h2>
+                <div class="code-block p-4 mb-4">
+                    <pre class="text-gray-300 code-font text-sm overflow-x-auto"><code>// Пример использования расширения CodeSwap для Cursor IDE
+import { installCodeSwapExtension } from '@cursor/extensions';
+
+// Добавьте расширение в ваш Cursor IDE
+installCodeSwapExtension({
+  apiKey: 'your-api-key',
+  shortcuts: {
+    search: 'Ctrl+Shift+F',
+    import: 'Ctrl+Shift+I'
+  }
+});</code></pre>
+                </div>
+                <p class="text-gray-300">
+                    Расширение CodeSwap для Cursor IDE позволяет искать и импортировать сниппеты кода прямо из вашего редактора. 
+                    Установите расширение, получите API-ключ в личном кабинете и начните использовать библиотеку кода.
+                </p>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-4">Для кого этот проект?</h2>
+                <ul class="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Разработчики, которые хотят сэкономить время на написании типовых решений</li>
+                    <li>Пользователи Cursor IDE, которые хотят расширить функционал своего редактора</li>
+                    <li>Новички, которые ищут примеры кода для обучения</li>
+                    <li>Опытные программисты, которые хотят поделиться своими наработками</li>
+                </ul>
+            </div>
+            
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-4">Наша команда</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-800 rounded-lg p-4 text-center">
+                        <div class="w-20 h-20 rounded-full bg-indigo-700 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white text-2xl">А</span>
+                        </div>
+                        <h3 class="font-bold">Алексей</h3>
+                        <p class="text-gray-400">Основатель проекта</p>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-4 text-center">
+                        <div class="w-20 h-20 rounded-full bg-purple-700 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white text-2xl">М</span>
+                        </div>
+                        <h3 class="font-bold">Мария</h3>
+                        <p class="text-gray-400">Frontend-разработчик</p>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-4 text-center">
+                        <div class="w-20 h-20 rounded-full bg-pink-700 flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white text-2xl">Д</span>
+                        </div>
+                        <h3 class="font-bold">Дмитрий</h3>
+                        <p class="text-gray-400">Backend-разработчик</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{% url 'accounts:register' %}" class="px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all inline-block">
+                    Присоединиться к сообществу
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

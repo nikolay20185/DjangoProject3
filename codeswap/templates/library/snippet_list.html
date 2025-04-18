@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Библиотека кода | CodeSwap{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Библиотека кода</h1>
+                <p class="text-gray-400">Найдите готовые решения или поделитесь своим кодом</p>
+            </div>
+            
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <a href="{% url 'library:snippet_create' %}" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Добавить сниппет
+                </a>
+            </div>
+        </div>
+        
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Фильтры -->
+            <div class="md:w-1/4">
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 sticky top-24">
+                    <h2 class="text-xl font-bold mb-4">Фильтры</h2>
+                    
+                    <form method="get" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Язык программирования</label>
+                            <select name="language" class="w-full px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Все языки</option>
+                                {% for language in languages %}
+                                    <option value="{{ language.id }}" {% if selected_language == language.id %}selected{% endif %}>
+                                        {{ language.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Сортировать по</label>
+                            <select name="sort" class="w-full px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Сначала новые</option>
+                                <option value="popular" {% if sort == 'popular' %}selected{% endif %}>По популярности</option>
+                                <option value="downloads" {% if sort == 'downloads' %}selected{% endif %}>По скачиваниям</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Поиск</label>
+                            <input type="text" name="search" value="{{ search }}" placeholder="Ключевые слова..." class="w-full px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-all">
+                                Применить фильтры
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Список сниппетов -->
+            <div class="md:w-3/4">
+                {% if snippets %}
+                    <div class="grid grid-cols-1 gap-6">
+                        {% for snippet in snippets %}
+                            <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover">
+                                <div class="p-6">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-1">{{ snippet.title }}</h3>
+                                            <div class="flex items-center space-x-2 text-sm text-gray-400">
+                                                <span>{{ snippet.language.name }}</span>
+                                                <span>•</span>
+                                                <span>{% if snippet.likes_count %}{{ snippet.likes_count }}{% else %}0{% endif %} ★</span>
+                                                <span>•</span>
+                                                <span>{{ snippet.downloads_count }} скачиваний</span>
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'accounts:profile_detail' snippet.author.username %}">
+                                            {% if snippet.author.profile.avatar %}
+                                                <img src="{{ snippet.author.profile.avatar.url }}" alt="{{ snippet.author.username }}" class="w-10 h-10 rounded-full border-2 border-indigo-500">
+                                            {% else %}
+                                                <div class="w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center border-2 border-indigo-500">
+                                                    <span class="text-white">{{ snippet.author.username|first|upper }}</span>
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                    <p class="text-gray-300 mb-4">{{ snippet.description|truncatechars:200 }}</p>
+                                    
+                                    <div class="code-block p-4 mb-4">
+                                        <span class="language-tag">{{ snippet.language.name }}</span>
+                                        <pre class="text-gray-300 code-font text-sm overflow-x-auto"><code>{{ snippet.code|truncatechars:300 }}</code></pre>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex space-x-2">
+                                            <span class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300">
+                                                <i class="far fa-heart mr-1"></i> {{ snippet.likes_count }}
+                                            </span>
+                                            <span class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300">
+                                                <i class="far fa-comment mr-1"></i> {{ snippet.comments.count }}
+                                            </span>
+                                        </div>
+                                        {% if snippet.slug %}
+                                        <a href="{% url 'library:snippet_detail' snippet.slug %}" class="cursor-ide-badge px-4 py-2 rounded-lg text-sm font-medium flex items-center hover:bg-gray-700 transition-all">
+                                            <i class="fas fa-cursor mr-2"></i>
+                                            Смотреть подробнее
+                                        </a>
+                                        {% else %}
+                                        <span class="cursor-ide-badge px-4 py-2 rounded-lg text-sm font-medium flex items-center text-gray-500">
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
+                                            Сниппет недоступен
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if is_paginated %}
+                    <div class="flex justify-center mt-8">
+                        <div class="flex space-x-1">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            {% endif %}
+                            
+                            <span class="px-4 py-2 rounded-lg bg-indigo-600 text-white">
+                                {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if selected_language %}&language={{ selected_language }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% else %}
+                    <div class="bg-gray-900/50 rounded-xl p-12 border border-gray-800 text-center">
+                        <div class="text-6xl mb-4 text-gray-600">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Сниппеты не найдены</h3>
+                        <p class="text-gray-400 mb-6">
+                            {% if search or selected_language %}
+                                Не найдено сниппетов по указанным критериям поиска. 
+                                <a href="{% url 'library:snippet_list' %}" class="text-indigo-400 hover:text-indigo-300">Сбросить фильтры</a>
+                            {% else %}
+                                В библиотеке пока нет сниппетов. Будьте первым, кто добавит полезный код!
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'library:snippet_create' %}" class="px-6 py-3 inline-block rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all">
+                            <i class="fas fa-plus mr-2"></i> Добавить первый сниппет
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

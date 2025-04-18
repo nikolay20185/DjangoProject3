@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSwap | Обмен кодом для Cursor IDE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .language-tag {
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px -3px rgba(99, 102, 241, 0.5);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .cursor-ide-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header -->
+    <header class="bg-[#020617] border-b border-gray-800 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <a href="#" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-code text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">CodeSwap</span>
+                    </a>
+                    
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="nav-link text-gray-300 hover:text-white">Главная</a>
+                        <a href="#" class="nav-link text-gray-300 hover:text-white">Библиотека кода</a>
+                        <a href="#" class="nav-link text-gray-300 hover:text-white">Для Cursor IDE</a>
+                        <a href="#" class="nav-link text-gray-300 hover:text-white">Сообщество</a>
+                    </nav>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all">
+                        Войти
+                    </button>
+                    <button class="md:hidden text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 to-[#020617] z-0"></div>
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-800/50 border border-gray-700 mb-6">
+                    <span class="cursor-ide-badge px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                        <i class="fas fa-bolt text-yellow-400 mr-2"></i>
+                        Интеграция с Cursor IDE
+                    </span>
+                    <span class="text-sm text-gray-300">Быстрый импорт кода в ваш проект</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    <span class="gradient-text">Обменивайтесь</span> кодом <br> с комьюнити
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                    Находите, делитесь и импортируйте готовые решения прямо в Cursor IDE. Ускоряйте разработку с помощью сообщества.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button class="px-8 py-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center justify-center">
+                        <i class="fas fa-rocket mr-3"></i>
+                        Начать бесплатно
+                    </button>
+                    <button class="px-8 py-4 rounded-lg bg-gray-800 border border-gray-700 text-white font-bold hover:bg-gray-700 transition-all flex items-center justify-center">
+                        <i class="fas fa-play-circle mr-3"></i>
+                        Смотреть демо
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-20 max-w-5xl mx-auto bg-gray-900 rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
+                <div class="flex items-center justify-between bg-gray-800 px-6 py-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="text-sm text-gray-400 code-font">
+                        example-component.js
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <i class="fas fa-copy text-gray-400 hover:text-white cursor-pointer"></i>
+                        <i class="fas fa-download text-gray-400 hover:text-white cursor-pointer"></i>
+                        <span class="cursor-ide-badge px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                            <i class="fas fa-cursor mr-1"></i>
+                            Импорт в Cursor
+                        </span>
+                    </div>
+                </div>
+                <div class="p-6 code-font text-sm overflow-x-auto">
+                    <pre class="text-gray-300"><code>import React from 'react';
+import { motion } from 'framer-motion';
+
+const AnimatedButton = ({ children }) => {
+  return (
+    <motion.button
+      whileHover="{% verbatim %}{{ scale: 1.05 }}{% endverbatim %}"
+      whileTap="{% verbatim %}{{ scale: 0.95 }}{% endverbatim %}"
+      className="px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium"
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+export default AnimatedButton;</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-gradient-to-b from-[#020617] to-gray-900/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Почему выбирают CodeSwap</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">Все что нужно для эффективной разработки в одном месте</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 card-hover">
+                    <div class="w-14 h-14 rounded-lg bg-indigo-500/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-cursor text-2xl text-indigo-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Интеграция с Cursor IDE</h3>
+                    <p class="text-gray-400">Один клик и код уже в вашем проекте. Поддержка всех функций Cursor.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 card-hover">
+                    <div class="w-14 h-14 rounded-lg bg-purple-500/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-search text-2xl text-purple-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Умный поиск кода</h3>
+                    <p class="text-gray-400">Находите нужные решения по технологии, сложности и рейтингу.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800 card-hover">
+                    <div class="w-14 h-14 rounded-lg bg-pink-500/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-users text-2xl text-pink-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Активное сообщество</h3>
+                    <p class="text-gray-400">Получайте помощь, делитесь решениями и находите единомышленников.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section class="py-20 bg-gray-900/50">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-16">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Популярные сниппеты</h2>
+                    <p class="text-xl text-gray-400 mb-6">Самые востребованные решения, которые можно импортировать прямо сейчас</p>
+                    <button class="px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all">
+                        <i class="fas fa-book-open mr-2"></i>
+                        Смотреть всю библиотеку
+                    </button>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                        Все языки
+                    </button>
+                    <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                        JavaScript
+                    </button>
+                    <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                        Python
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Code Example 1 -->
+                <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">Анимация загрузки</h3>
+                                <div class="flex items-center space-x-2 text-sm text-gray-400">
+                                    <span>React</span>
+                                    <span>•</span>
+                                    <span>4.9 ★</span>
+                                    <span>•</span>
+                                    <span>12 скачиваний</span>
+                                </div>
+                            </div>
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-10 h-10 rounded-full border-2 border-indigo-500">
+                        </div>
+                        <p class="text-gray-300 mb-4">Плавная анимация загрузки с использованием Framer Motion. Легко кастомизируется под ваш дизайн.</p>
+                        
+                        <div class="code-block p-4 mb-4">
+                            <span class="language-tag">JSX</span>
+                            <pre class="text-gray-300 code-font text-sm overflow-x-auto"><code>const Loader = () => {
+  return (
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full"
+    />
+  );
+};</code></pre>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="far fa-heart mr-1"></i> 24
+                                </button>
+                                <button class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="far fa-comment mr-1"></i> 5
+                                </button>
+                            </div>
+                            <button class="cursor-ide-badge px-4 py-2 rounded-lg text-sm font-medium flex items-center hover:bg-gray-700 transition-all">
+                                <i class="fas fa-cursor mr-2"></i>
+                                Импорт в Cursor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Code Example 2 -->
+                <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">Валидация формы</h3>
+                                <div class="flex items-center space-x-2 text-sm text-gray-400">
+                                    <span>JavaScript</span>
+                                    <span>•</span>
+                                    <span>4.7 ★</span>
+                                    <span>•</span>
+                                    <span>18 скачиваний</span>
+                                </div>
+                            </div>
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-10 h-10 rounded-full border-2 border-purple-500">
+                        </div>
+                        <p class="text-gray-300 mb-4">Универсальная функция валидации email, пароля и номера телефона. Подходит для любых форм.</p>
+                        
+                        <div class="code-block p-4 mb-4">
+                            <span class="language-tag">JS</span>
+                            <pre class="text-gray-300 code-font text-sm overflow-x-auto"><code>const validateForm = ({ email, password, phone }) => {
+  const errors = {};
+  
+  if (!email.includes('@')) errors.email = 'Invalid email';
+  if (password.length < 8) errors.password = 'Too short';
+  if (!/^\+?[\d\s-]{10,}$/.test(phone)) {
+    errors.phone = 'Invalid phone number';
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};</code></pre>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="far fa-heart mr-1"></i> 31
+                                </button>
+                                <button class="px-3 py-1 text-sm rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="far fa-comment mr-1"></i> 8
+                                </button>
+                            </div>
+                            <button class="cursor-ide-badge px-4 py-2 rounded-lg text-sm font-medium flex items-center hover:bg-gray-700 transition-all">
+                                <i class="fas fa-cursor mr-2"></i>
+                                Импорт в Cursor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center bg-gray-900/50 rounded-2xl p-12 border border-gray-800 backdrop-blur-sm">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Готовы ускорить свою разработку?</h2>
+                <p class="text-xl text-gray-300 mb-8">Присоединяйтесь к сообществу CodeSwap и получите доступ к тысячам готовых решений для ваших проектов.</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button class="px-8 py-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center justify-center">
+                        <i class="fas fa-user-plus mr-3"></i>
+                        Зарегистрироваться
+                    </button>
+                    <button class="px-8 py-4 rounded-lg bg-gray-800 border border-gray-700 text-white font-bold hover:bg-gray-700 transition-all flex items-center justify-center">
+                        <i class="fas fa-cursor mr-3"></i>
+                        Установить для Cursor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#020617] border-t border-gray-800">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-code text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">CodeSwap</span>
+                    </div>
+                    <p class="text-gray-400">Сообщество разработчиков, обменивающихся кодом и знаниями.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Ресурсы</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Документация</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Блог</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Курсы</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Сообщество</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">YouTube</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Подписка</h4>
+                    <p class="text-gray-400 mb-4">Получайте лучшие сниппеты недели на почту</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Ваш email" class="px-4 py-2 bg-gray-800 text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full">
+                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2023 CodeSwap. Все права защищены.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.md\\:hidden').addEventListener('click', function() {
+            const nav = document.querySelector('nav');
+            nav.classList.toggle('hidden');
+            nav.classList.toggle('flex');
+            nav.classList.toggle('flex-col');
+            nav.classList.toggle('absolute');
+            nav.classList.toggle('top-16');
+            nav.classList.toggle('left-0');
+            nav.classList.toggle('right-0');
+            nav.classList.toggle('bg-gray-900');
+            nav.classList.toggle('p-4');
+            nav.classList.toggle('space-y-4');
+            nav.classList.toggle('space-x-6');
+            nav.classList.toggle('border-t');
+            nav.classList.toggle('border-gray-800');
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('.fa-copy').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const codeBlock = this.closest('.flex').previousElementSibling;
+                const code = codeBlock.querySelector('code').textContent;
+                
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalIcon = this.classList.contains('fa-copy') ? 'fa-copy' : 'fa-check';
+                    this.classList.remove(originalIcon);
+                    this.classList.add('fa-check');
+                    this.classList.add('text-green-500');
+                    
+                    setTimeout(() => {
+                        this.classList.remove('fa-check');
+                        this.classList.remove('text-green-500');
+                        this.classList.add(originalIcon);
+                    }, 2000);
+                });
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fadeIn');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card-hover').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

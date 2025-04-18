@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Сообщество | CodeSwap{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Сообщество CodeSwap</h1>
+                <p class="text-gray-400">Обсуждайте код, делитесь опытом и находите единомышленников</p>
+            </div>
+            
+            <div class="mt-4 md:mt-0 flex items-center">
+                <a href="{% url 'community:create_topic' %}" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Создать тему
+                </a>
+            </div>
+        </div>
+        
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Фильтры и категории -->
+            <div class="md:w-1/4">
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 sticky top-24">
+                    <h2 class="text-xl font-bold mb-4">Категории</h2>
+                    
+                    <div class="space-y-2">
+                        <a href="{% url 'community:topic_list' %}" class="block px-4 py-2 {% if not selected_category %}bg-indigo-600{% else %}bg-gray-800{% endif %} text-white rounded-lg hover:bg-indigo-500 transition-all">
+                            Все темы
+                        </a>
+                        {% for category in categories %}
+                            <a href="{% url 'community:topic_list' %}?category={{ category.slug }}" class="block px-4 py-2 {% if selected_category == category.slug %}bg-indigo-600{% else %}bg-gray-800{% endif %} text-white rounded-lg hover:bg-indigo-500 transition-all">
+                                {{ category.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                    
+                    <h2 class="text-xl font-bold mb-4 mt-8">Фильтры</h2>
+                    <form method="get" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Сортировать по</label>
+                            <select name="sort" class="w-full px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Сначала новые</option>
+                                <option value="active" {% if sort == 'active' %}selected{% endif %}>Самые активные</option>
+                                <option value="popular" {% if sort == 'popular' %}selected{% endif %}>По популярности</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Поиск</label>
+                            <input type="text" name="search" value="{{ search }}" placeholder="Ключевые слова..." class="w-full px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-all">
+                                Применить фильтры
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Список тем -->
+            <div class="md:w-3/4">
+                {% if topics %}
+                    <div class="space-y-4">
+                        {% for topic in topics %}
+                            <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-indigo-500 transition-all">
+                                <div class="p-6">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div>
+                                            <a href="{% url 'community:topic_detail' topic.slug %}" class="text-xl font-bold hover:text-indigo-400 transition-colors">{{ topic.title }}</a>
+                                            <div class="flex items-center space-x-2 text-sm text-gray-400">
+                                                <span>{{ topic.created_at|date:"d.m.Y H:i" }}</span>
+                                                <span>•</span>
+                                                <span>{{ topic.replies.count }} ответов</span>
+                                                <span>•</span>
+                                                <span>{{ topic.views }} просмотров</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <span class="px-3 py-1 text-xs rounded-full bg-indigo-700/20 text-indigo-400 border border-indigo-700/30">
+                                            {{ topic.category.name }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-gray-300 mb-4">{{ topic.content|truncatechars:200 }}</p>
+                                    
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center">
+                                            <a href="{% url 'accounts:profile_detail' topic.author.username %}" class="flex items-center">
+                                                {% if topic.author.profile.avatar %}
+                                                    <img src="{{ topic.author.profile.avatar.url }}" alt="{{ topic.author.username }}" class="w-8 h-8 rounded-full border border-indigo-500 mr-2">
+                                                {% else %}
+                                                    <div class="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center mr-2">
+                                                        <span class="text-white text-xs">{{ topic.author.username|first|upper }}</span>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="text-gray-300 text-sm">{{ topic.author.username }}</span>
+                                            </a>
+                                        </div>
+                                        
+                                        <a href="{% url 'community:topic_detail' topic.slug %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 text-sm hover:bg-gray-700 transition-all">
+                                            Перейти к обсуждению →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if is_paginated %}
+                    <div class="flex justify-center mt-8">
+                        <div class="flex space-x-1">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            {% endif %}
+                            
+                            <span class="px-4 py-2 rounded-lg bg-indigo-600 text-white">
+                                {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% else %}
+                    <div class="bg-gray-900/50 rounded-xl p-12 border border-gray-800 text-center">
+                        <div class="text-6xl mb-4 text-gray-600">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Темы не найдены</h3>
+                        <p class="text-gray-400 mb-6">
+                            {% if search or selected_category %}
+                                Не найдено тем по указанным критериям поиска. 
+                                <a href="{% url 'community:topic_list' %}" class="text-indigo-400 hover:text-indigo-300">Сбросить фильтры</a>
+                            {% else %}
+                                В сообществе пока нет тем для обсуждения. Будьте первым, кто создаст интересную тему!
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'community:create_topic' %}" class="px-6 py-3 inline-block rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all">
+                            <i class="fas fa-plus mr-2"></i> Создать первую тему
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль | CodeSwap{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="bg-gray-900/50 rounded-xl p-8 border border-gray-800">
+            <div class="flex flex-col md:flex-row items-start gap-8">
+                <div class="md:w-1/4">
+                    <div class="text-center mb-6">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-32 h-32 rounded-full border-4 border-indigo-500 mx-auto">
+                        {% else %}
+                            <div class="w-32 h-32 rounded-full bg-indigo-700 flex items-center justify-center mx-auto">
+                                <span class="text-white text-4xl">{{ user.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                        <h1 class="text-2xl font-bold mt-4">{{ user.username }}</h1>
+                        <p class="text-gray-400">{{ user.email }}</p>
+                    </div>
+
+                    <div class="flex flex-col space-y-2">
+                        <a href="{% url 'accounts:edit_profile' %}" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium text-center hover:from-indigo-600 hover:to-purple-700 transition-all">
+                            <i class="fas fa-edit mr-2"></i> Редактировать профиль
+                        </a>
+                        <a href="{% url 'accounts:change_password' %}" class="px-4 py-2 rounded-lg bg-gray-800 text-white font-medium text-center hover:bg-gray-700 transition-all">
+                            <i class="fas fa-key mr-2"></i> Изменить пароль
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="md:w-3/4">
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold mb-4 border-b border-gray-800 pb-2">О пользователе</h2>
+                        <p class="text-gray-300">
+                            {% if user.profile.bio %}
+                                {{ user.profile.bio }}
+                            {% else %}
+                                Пользователь еще не добавил информацию о себе.
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold mb-4 border-b border-gray-800 pb-2">Мои сниппеты</h2>
+                        
+                        {% if snippets %}
+                            <div class="grid grid-cols-1 gap-4">
+                                {% for snippet in snippets %}
+                                    <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                                        <div class="flex justify-between items-start">
+                                            <h3 class="text-lg font-semibold">{{ snippet.title }}</h3>
+                                            <span class="text-sm text-gray-400">{{ snippet.created_at|date:"d.m.Y" }}</span>
+                                        </div>
+                                        <div class="text-sm text-gray-400 mb-2">
+                                            {{ snippet.language.name }} • {{ snippet.likes_count }} ★
+                                        </div>
+                                        <p class="text-gray-300 mb-3">{{ snippet.description|truncatechars:100 }}</p>
+                                        {% if snippet.slug %}
+                                        <a href="{% url 'library:snippet_detail' snippet.slug %}" class="text-indigo-400 hover:text-indigo-300 text-sm">
+                                            Смотреть подробнее →
+                                        </a>
+                                        {% else %}
+                                        <span class="text-gray-500 text-sm">
+                                            Сниппет недоступен
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-400">У вас пока нет сниппетов. <a href="{% url 'library:snippet_create' %}" class="text-indigo-400 hover:text-indigo-300">Создайте первый!</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

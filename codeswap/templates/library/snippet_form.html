@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | CodeSwap{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6">{{ title }}</h1>
+            
+            <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-lg">
+                        <p class="font-bold text-red-400">Пожалуйста, исправьте следующие ошибки:</p>
+                        {{ form.errors }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-5">
+                        <label for="{{ form.title.id_for_label }}" class="block font-medium mb-2">
+                            Название <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.title.errors }}
+                        <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" 
+                               class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               {% if form.title.value %}value="{{ form.title.value }}"{% endif %} required>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label for="{{ form.language.id_for_label }}" class="block font-medium mb-2">
+                            Язык программирования <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.language.errors }}
+                        <select name="{{ form.language.name }}" id="{{ form.language.id_for_label }}" 
+                                class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <option value="">Выберите язык</option>
+                            {% for choice in form.language.field.queryset %}
+                                <option value="{{ choice.id }}" {% if form.language.value|stringformat:"i" == choice.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ choice.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label for="{{ form.description.id_for_label }}" class="block font-medium mb-2">
+                            Описание <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.description.errors }}
+                        <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" 
+                                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                  rows="4" placeholder="Описание сниппета и инструкции по использованию" required>{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label for="{{ form.code.id_for_label }}" class="block font-medium mb-2">
+                            Код <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.code.errors }}
+                        <div class="code-editor-container relative">
+                            <textarea name="{{ form.code.name }}" id="{{ form.code.id_for_label }}" 
+                                      class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 code-editor"
+                                      rows="10" placeholder="Вставьте ваш код сюда" required>{% if form.code.value %}{{ form.code.value }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label for="{{ form.tags.id_for_label }}" class="block font-medium mb-2">
+                            Теги
+                        </label>
+                        {{ form.tags.errors }}
+                        <input type="text" name="{{ form.tags.name }}" id="{{ form.tags.id_for_label }}" 
+                               class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               placeholder="Теги через запятую (например: react, animation, ui)"
+                               {% if form.tags.value %}value="{{ form.tags.value }}"{% endif %}>
+                        <p class="text-sm text-gray-500 mt-1">Необязательно. Добавьте ключевые слова, чтобы помочь другим найти ваш сниппет.</p>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="{{ form.is_published.name }}" id="{{ form.is_published.id_for_label }}" 
+                                   class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                                   {% if form.is_published.value %}checked{% endif %}>
+                            <label for="{{ form.is_published.id_for_label }}" class="ml-2 block font-medium">
+                                Опубликовать
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Если не отмечено, сниппет будет сохранен как черновик и будет виден только вам.</p>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <a href="{% url 'library:snippet_list' %}" class="px-6 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors">
+                            Отмена
+                        </a>
+                        <button type="submit" class="px-6 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-colors">
+                            {% if snippet %}Сохранить изменения{% else %}Создать сниппет{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Простейшая подсветка синтаксиса для поля кода
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeEditor = document.querySelector('.code-editor');
+        if (codeEditor) {
+            // Здесь можно добавить библиотеку для подсветки синтаксиса, если она нужна
+        }
+    });
+</script>
+{% endblock %} 

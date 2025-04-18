@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeSwap | Обмен кодом для Cursor IDE{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .language-tag {
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px -3px rgba(99, 102, 241, 0.5);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .cursor-ide-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="antialiased">
+    <!-- Header -->
+    <header class="bg-[#020617] border-b border-gray-800 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'core:home' %}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-code text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">CodeSwap</span>
+                    </a>
+                    
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="{% url 'core:home' %}" class="nav-link text-gray-300 hover:text-white">Главная</a>
+                        <a href="{% url 'library:snippet_list' %}" class="nav-link text-gray-300 hover:text-white">Библиотека кода</a>
+                        <a href="{% url 'core:about' %}" class="nav-link text-gray-300 hover:text-white">Для Cursor IDE</a>
+                        <a href="{% url 'community:topic_list' %}" class="nav-link text-gray-300 hover:text-white">Сообщество</a>
+                    </nav>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full border border-indigo-500">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center">
+                                    <span class="text-white text-sm">{{ user.username|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <span class="hidden md:block">{{ user.username }}</span>
+                        </a>
+                        <a href="{% url 'accounts:logout' %}" class="px-4 py-2 rounded-md bg-gray-800 border border-gray-700 text-white hover:bg-gray-700 transition-all">
+                            Выйти
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-gray-300 hover:text-white">
+                            Войти
+                        </a>
+                        <a href="{% url 'accounts:register' %}" class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium hover:from-indigo-600 hover:to-purple-700 transition-all">
+                            Регистрация
+                        </a>
+                    {% endif %}
+                    <button class="md:hidden text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-4 pt-6">
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-800/30 border border-green-600/30{% elif message.tags == 'error' %}bg-red-800/30 border border-red-600/30{% else %}bg-blue-800/30 border border-blue-600/30{% endif %} relative" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+                <button type="button" class="absolute top-1 right-1 px-2 py-1 text-gray-400 hover:text-white" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#020617] border-t border-gray-800 mt-12">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-code text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold gradient-text">CodeSwap</span>
+                    </div>
+                    <p class="text-gray-400">Сообщество разработчиков, обменивающихся кодом и знаниями.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Ресурсы</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Документация</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Блог</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Курсы</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Сообщество</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">YouTube</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Подписка</h4>
+                    <p class="text-gray-400 mb-4">Получайте лучшие сниппеты недели на почту</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Ваш email" class="px-4 py-2 bg-gray-800 text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full">
+                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">© {% now "Y" %} CodeSwap. Все права защищены.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.md\\:hidden').addEventListener('click', function() {
+            const nav = document.querySelector('nav');
+            nav.classList.toggle('hidden');
+            nav.classList.toggle('flex');
+            nav.classList.toggle('flex-col');
+            nav.classList.toggle('absolute');
+            nav.classList.toggle('top-16');
+            nav.classList.toggle('left-0');
+            nav.classList.toggle('right-0');
+            nav.classList.toggle('bg-gray-900');
+            nav.classList.toggle('p-4');
+            nav.classList.toggle('space-y-4');
+            nav.classList.toggle('space-x-6');
+            nav.classList.toggle('border-t');
+            nav.classList.toggle('border-gray-800');
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 
