@@ -1,6 +1,6 @@
 <picture>
- <source media="(prefers-color-scheme: dark)" srcset="YOUR-DARKMODE-IMAGE">
- <source media="(prefers-color-scheme: light)" srcset="YOUR-LIGHTMODE-IMAGE">
+ <source media="(prefers-color-scheme: dark)" srcset="[![2025-04-18-21-36-34.png](https://i.postimg.cc/43Px0fPz/2025-04-18-21-36-34.png)](https://postimg.cc/1ggSnZLt)">
+ <source media="(prefers-color-scheme: light)" srcset="[![2025-04-18-21-36-34.png](https://i.postimg.cc/43Px0fPz/2025-04-18-21-36-34.png)](https://postimg.cc/1ggSnZLt)">
  <img alt="https://i.postimg.cc/43Px0fPz/2025-04-18-21-36-34.png" src="https://i.postimg.cc/43Px0fPz/2025-04-18-21-36-34.png">
 </picture>
 
